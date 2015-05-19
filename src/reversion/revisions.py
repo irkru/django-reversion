@@ -345,6 +345,14 @@ class RevisionManager(object):
 
     def _registration_key_for_model(self, model):
         meta = model._meta
+
+        # HACKFIX: support deferred models
+        if model._deferred:
+            if meta.proxy:
+                meta = meta.proxy_for_model._meta
+            else:
+                meta = model._meta.concrete_model._meta
+
         return (
             meta.app_label,
             meta.model_name,
@@ -395,10 +403,6 @@ class RevisionManager(object):
 
     def get_adapter(self, model):
         """Returns the registration information for the given model class."""
-
-        # HACKFIX: support deferred models
-        if model._deferred:
-            model = model._meta.concrete_model
 
         if self.is_registered(model):
             return self._registered_models[self._registration_key_for_model(model)]
