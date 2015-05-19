@@ -395,6 +395,11 @@ class RevisionManager(object):
 
     def get_adapter(self, model):
         """Returns the registration information for the given model class."""
+
+        # HACKFIX: support deferred models
+        if model._deferred:
+            model = model._meta.concrete_model
+
         if self.is_registered(model):
             return self._registered_models[self._registration_key_for_model(model)]
         raise RegistrationError("{model} has not been registered with django-reversion".format(
