@@ -309,7 +309,14 @@ def _m2m_changed_receiver(instance, using, action, model, reverse, **kwargs):
 
 
 def _get_registration_key(model):
-    return (model._meta.app_label, model._meta.model_name)
+    meta = model._meta
+    if model._deferred:
+        if meta.proxy:
+            meta = meta.proxy_for_model._meta
+        else:
+            meta = model._meta.concrete_model._meta
+
+    return (meta.app_label, meta.model_name)
 
 
 _registered_models = {}
